@@ -230,3 +230,4 @@ while loop == True:
 #Why is the sql unable process the parameters could it please give me some more valuable information instead of the very vague decription that they gave me
 #selectAll(card_name, card_color_identity, card_type_line, card_rarity, 12)
 
+#Hey this is a change to the repositor
