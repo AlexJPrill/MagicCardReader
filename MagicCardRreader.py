@@ -2,13 +2,10 @@ from mysql.connector import connect, Error
 import requests
 import json
 
-#First version almost done just need to add in the price to the data
-#Then need to do some cleaning up of the code and getting rid of things that I dont need
-
-#Want to add in a feature that will allow the user to paste a bunch of cards into a file and the program will go in and add in all of the cards
+#Need to edit the table to include the card id, expansion, and card_price of a single unit
+#Add some error cathing for when we make the request to the scryfall api
 
 def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
-    #print(name)
     try:
         with connect(
             host="localhost",
@@ -24,7 +21,6 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
 
 
             
-            #Select all cards in the table
             select_cards_query = "SELECT * FROM cards"
 
             card_update = (int(number_coppies), name)
@@ -51,24 +47,21 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
                 
                 i = 0
                 doesExist = False
-                #Need to find another way to check to see if the names match up 
                 while i < len(result):
-                    
 
                     if result[i][0].replace(" ", "") == name.replace(" ", ""):
                         cursor.execute(update_number_coppies_query)
                         connection.commit()
+                        print("Added " + number_coppies + " of " + name + " to the database")
                         doesExist = True
                         break
                     i = i + 1
                     
                 if doesExist == False:
                     cursor.execute(insert_magic_cards_query, data)
-                    print("Added additional card to database")
+                    print("Added " + name + " to the database")
                     connection.commit()
 
-                connection.commit()
-                result = cursor.fetchall()
                 connection.commit()
     except Error as e:
         print(e)
@@ -125,16 +118,10 @@ def selectAll(name, color_identity, type_line, rarity, number_coppies):
             with connection.cursor() as cursor:
                 cursor.execute(select_cards_query)
                 result = cursor.fetchall()
-                print(len(result))
-                for x in result:
-                    print(x)
                 
                 cursor.execute(delete_query)
                 connection.commit()
                 result = cursor.fetchall()
-                for x in result:
-                    print(x)
-                    print("Hello")
                 connection.commit()
     except Error as e:
         print(e)
@@ -173,7 +160,6 @@ def singleCard():
 
 
 
-#need to change this now very badly
 def multiCard():
 
    f = open('cards.txt', "r")
@@ -195,7 +181,7 @@ def multiCard():
            card_id = split[0]
            card_expansion = split[1][0:3]
        url = "https://api.scryfall.com/cards/"
-       #need to change this now very badly
+
 def multiCard():
    f = open('cards.txt', "r")
    z = f.readlines()
@@ -204,24 +190,19 @@ def multiCard():
    number_coppies = 0
 
    for x in range(0, len(z)):
-       print(z[x])
-       print("(" in z[x])
-       if "(" in z[x]:
-           print("This works now")
-           
+
+       if "(" in z[x]:           
            index1 = z[x].find("(")+1
            index2 = z[x].find(")")
            number_coppies = z[x][index1:index2]
            split = z[x].split("/")
            card_id = split[0]
            card_expansion = split[1][0:split[1].find("(")]
-           print(number_coppies)
        else:
             split = z[x].split("/")
             card_id = split[0]
             card_expansion = split[1][0:len(split[1])]
             number_coppies = 1
-            #print(card_expansion)
 
        print(number_coppies)
        url = "https://api.scryfall.com/cards/"
@@ -234,6 +215,7 @@ def multiCard():
        card_type_line = json_data["type_line"]
        card_color_identity = json_data["color_identity"]
        color_identity = ""
+
        for x in card_color_identity:
 
            if x == "G":
@@ -249,9 +231,6 @@ def multiCard():
            else:
                 color_identity += "Colorless"
             
-           
-       #print(card_name)
-
        insert_into_table(card_name, color_identity, card_type_line, card_rarity, number_coppies)
 
 
@@ -286,8 +265,4 @@ while loop == True:
 
 
 
-#print(data[0])
-#Why is the sql unable process the parameters could it please give me some more valuable information instead of the very vague decription that they gave me
-#selectAll(card_name, card_color_identity, card_type_line, card_rarity, 12)
 
-#Hey this is a change to the repositor
