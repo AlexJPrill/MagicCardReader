@@ -32,10 +32,10 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
             UPDATE
                 cards
             SET
-                number_coppies = number_coppies + %s
+                number_coppies = number_coppies + "%s"
             WHERE
-                name = %s
-            """ %(number_coppies, name)
+                name = "%s"
+            """ % (number_coppies, name)
 
             delete_query = """
             DELETE FROM cards WHERE name = "Sol Ring"
@@ -46,31 +46,22 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
                 cursor.execute(select_cards_query)
                 result = cursor.fetchall()
                 
-                if result == None:
-                    cursor.execute(insert_magic_cards_query, data)
-                    connection.commit()
-                    print("added card")
+                
                 
                 
                 i = 0
                 doesExist = False
                 #Need to find another way to check to see if the names match up 
                 while i < len(result):
-                    if result[i][0] == name  and number_coppies == 1:
-                        cursor.execute(update_number_coppies_query)
-                        connection.commit()
-                        doesExist = True
-                        break
-                    elif result[i][0] == name and int(number_coppies) > 1:
-                        print("There is more than one coppy")
-                        #Have an error relating to the data type that we are passing into the update method
-                        card_update = (name, number_coppies)
-                        cursor.execute(update_number_coppies_query)
-                        connection.commit()
-                        doesExist = True
-                        break
+                    
 
+                    if result[i][0].replace(" ", "") == name.replace(" ", ""):
+                        cursor.execute(update_number_coppies_query)
+                        connection.commit()
+                        doesExist = True
+                        break
                     i = i + 1
+                    
                 if doesExist == False:
                     cursor.execute(insert_magic_cards_query, data)
                     print("Added additional card to database")
