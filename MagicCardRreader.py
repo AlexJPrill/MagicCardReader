@@ -21,24 +21,11 @@ def insert_into_table(name, color_identity, type_line, rarity):
             INSERT INTO cards(name, color_identity, type_line, rarity, number_coppies)
             VALUES(%s, %s, %s, %s, %s)
         """
-            
-            insert_magic_cardz = """"
-            INSERT INTO cardz (name, rarity)
-            VALUES (%s, %s)
-            """
 
-            show_table_query = "DESCRIBE cards"
+
+            
+            #Select all cards in the table
             select_cards_query = "SELECT * FROM cards"
-            create_table_cardz_query = """
-            CREATE TABLE cardz(
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100),
-                color_identity VARCHAR(100),
-                type_line VARCHAR(100),
-                rarity VARCHAR(100),
-                number_coppies INT
-            )
-            """
 
             card_update = name
             update_number_coppies_query = """
@@ -158,6 +145,52 @@ def selectAll(name, color_identity, type_line, rarity, number_coppies):
                 connection.commit()
     except Error as e:
         print(e)
+
+#need to change this now very badly
+def multiCard(name, color_identity, type_line, rarity, number_coppies):
+   f = open('cards.txt', "r")
+   for item in f:
+       if item.contains("("):
+           card_id = "something"
+
+
+
+
+    #Will read in cards from a textfile
+    try:
+        with connect(
+            host="localhost",
+            user="goofe222",
+            password="d@t@b@s3",
+            database="magic_cards"
+        ) as connection:
+        
+            data = (name, color_identity, type_line, rarity, 1)
+            insert_magic_cards_query = """
+            INSERT INTO cards(name, color_identity, type_line, rarity, number_coppies)
+            VALUES(%s, %s, %s, %s, %s)
+        """
+
+
+            data2 = (number_coppies, name)
+            update_number_coppies_query = """
+            UPDATE
+                cards
+            SET
+                number_coppies = number_coppies + %s
+            WHERE
+                name = %s
+            """ 
+
+            
+
+            
+            with connection.cursor() as cursor:
+                cursor.execute()
+                connection.commit()
+    except Error as e:
+        print(e)
+
 
 
 def singleCard():
