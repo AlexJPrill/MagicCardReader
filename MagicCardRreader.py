@@ -7,7 +7,8 @@ import json
 
 #Want to add in a feature that will allow the user to paste a bunch of cards into a file and the program will go in and add in all of the cards
 
-def insert_into_table(name, color_identity, type_line, rarity):
+def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
+    #print(name)
     try:
         with connect(
             host="localhost",
@@ -15,8 +16,7 @@ def insert_into_table(name, color_identity, type_line, rarity):
             password="d@t@b@s3",
             database="magic_cards"
         ) as connection:
-        
-            data = (name, color_identity, type_line, rarity, 1)
+            data = (name, color_identity, type_line, rarity, number_coppies)
             insert_magic_cards_query = """
             INSERT INTO cards(name, color_identity, type_line, rarity, number_coppies)
             VALUES(%s, %s, %s, %s, %s)
@@ -27,15 +27,15 @@ def insert_into_table(name, color_identity, type_line, rarity):
             #Select all cards in the table
             select_cards_query = "SELECT * FROM cards"
 
-            card_update = name
+            card_update = (int(number_coppies), name)
             update_number_coppies_query = """
             UPDATE
                 cards
             SET
-                number_coppies = number_coppies + 1
+                number_coppies = number_coppies + %s
             WHERE
                 name = %s
-            """ 
+            """ %(number_coppies, name)
 
             delete_query = """
             DELETE FROM cards WHERE name = "Sol Ring"
@@ -45,10 +45,8 @@ def insert_into_table(name, color_identity, type_line, rarity):
             with connection.cursor() as cursor:
                 cursor.execute(select_cards_query)
                 result = cursor.fetchall()
-                print(len(result))
                 
                 if result == None:
-                    print("HEllo this works")
                     cursor.execute(insert_magic_cards_query, data)
                     connection.commit()
                     print("added card")
@@ -56,17 +54,23 @@ def insert_into_table(name, color_identity, type_line, rarity):
                 
                 i = 0
                 doesExist = False
-                print(len(result))
                 #Need to find another way to check to see if the names match up 
                 while i < len(result):
-                    print(result[i])
-                    if result[i][0] == name:
-                        cursor.execute(update_number_coppies_query, (card_update,))
+                    if result[i][0] == name  and number_coppies == 1:
+                        cursor.execute(update_number_coppies_query)
                         connection.commit()
                         doesExist = True
                         break
+                    elif result[i][0] == name and int(number_coppies) > 1:
+                        print("There is more than one coppy")
+                        #Have an error relating to the data type that we are passing into the update method
+                        card_update = (name, number_coppies)
+                        cursor.execute(update_number_coppies_query)
+                        connection.commit()
+                        doesExist = True
+                        break
+
                     i = i + 1
-                    print("hello")
                 if doesExist == False:
                     cursor.execute(insert_magic_cards_query, data)
                     print("Added additional card to database")
@@ -74,8 +78,6 @@ def insert_into_table(name, color_identity, type_line, rarity):
 
                 connection.commit()
                 result = cursor.fetchall()
-                for x in result:
-                    print(x)
                 connection.commit()
     except Error as e:
         print(e)
@@ -146,51 +148,6 @@ def selectAll(name, color_identity, type_line, rarity, number_coppies):
     except Error as e:
         print(e)
 
-#need to change this now very badly
-def multiCard(name, color_identity, type_line, rarity, number_coppies):
-   f = open('cards.txt', "r")
-   for item in f:
-       if item.contains("("):
-           card_id = "something"
-
-
-
-
-    #Will read in cards from a textfile
-    try:
-        with connect(
-            host="localhost",
-            user="goofe222",
-            password="d@t@b@s3",
-            database="magic_cards"
-        ) as connection:
-        
-            data = (name, color_identity, type_line, rarity, 1)
-            insert_magic_cards_query = """
-            INSERT INTO cards(name, color_identity, type_line, rarity, number_coppies)
-            VALUES(%s, %s, %s, %s, %s)
-        """
-
-
-            data2 = (number_coppies, name)
-            update_number_coppies_query = """
-            UPDATE
-                cards
-            SET
-                number_coppies = number_coppies + %s
-            WHERE
-                name = %s
-            """ 
-
-            
-
-            
-            with connection.cursor() as cursor:
-                cursor.execute()
-                connection.commit()
-    except Error as e:
-        print(e)
-
 
 
 def singleCard():
@@ -219,13 +176,92 @@ def singleCard():
             color_identity += "Red"
         else:
             color_identity += "Colorless"
-    card_copies = 12
-    insert_into_table(card_name, color_identity, card_type_line, card_rarity)
+    number_coppies = 1
+    insert_into_table(card_name, color_identity, card_type_line, card_rarity, number_coppies)
 
 
 
 
+#need to change this now very badly
+def multiCard():
 
+   f = open('cards.txt', "r")
+   z = f.readlines()
+   card_id = ""
+   card_expansion = ""
+
+   for x in range(0, len(z)-1):
+       
+       if "(" in z[x]:
+           index1 = z[x].find("(")+1
+           index2 = z[x].find(")")-1
+           number_coppies = z[x][index1:index2]
+           split = z[x].split("/")
+           card_id = split[0]
+           card_expansion = z[x][4:7]
+       else:
+           split = z[x].split("/")
+           card_id = split[0]
+           card_expansion = split[1][0:3]
+       url = "https://api.scryfall.com/cards/"
+       #need to change this now very badly
+def multiCard():
+   f = open('cards.txt', "r")
+   z = f.readlines()
+   card_id = ""
+   card_expansion = ""
+   number_coppies = 0
+
+   for x in range(0, len(z)):
+       print(z[x])
+       print("(" in z[x])
+       if "(" in z[x]:
+           print("This works now")
+           
+           index1 = z[x].find("(")+1
+           index2 = z[x].find(")")
+           number_coppies = z[x][index1:index2]
+           split = z[x].split("/")
+           card_id = split[0]
+           card_expansion = split[1][0:split[1].find("(")]
+           print(number_coppies)
+       else:
+            split = z[x].split("/")
+            card_id = split[0]
+            card_expansion = split[1][0:len(split[1])]
+            number_coppies = 1
+            #print(card_expansion)
+
+       print(number_coppies)
+       url = "https://api.scryfall.com/cards/"
+       url += card_expansion + "/" + card_id
+       print(url)
+       response = requests.get(url)
+       json_data = response.json()
+       card_name = json_data["name"]
+       card_rarity = json_data["rarity"]
+       card_type_line = json_data["type_line"]
+       card_color_identity = json_data["color_identity"]
+       color_identity = ""
+       for x in card_color_identity:
+
+           if x == "G":
+                color_identity += "Green"
+           elif x == "B":
+                color_identity += "Black"
+           elif x == "U":
+                color_identity += "Blue"
+           elif x == "W":
+                color_identity += "White"
+           elif x == "R":
+                color_identity += "Red"
+           else:
+                color_identity += "Colorless"
+            
+           
+       #print(card_name)
+
+       insert_into_table(card_name, color_identity, card_type_line, card_rarity, number_coppies)
 
 
 
@@ -242,7 +278,7 @@ while loop == True:
         singleCard()
     elif userInput == "2":
         print("Please make sure that the file is populated with the correct cards that you would like to have added to the data base")
-        #add the def for the bulk input 
+        multiCard()
     else:
         print("Sorry that was not a valid option")
 
