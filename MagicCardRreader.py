@@ -2,9 +2,10 @@ from mysql.connector import connect, Error
 import requests
 import json
 
-#Need to edit the table to include the card id, expansion, and card_price of a single unit
+#Need to edit the table to include the card_id, expansion, and card_price of a single unit
 #Add some error cathing for when we make the request to the scryfall api
 
+#Takes the given values and adds them to the table
 def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
     try:
         with connect(
@@ -33,11 +34,6 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
                 name = "%s"
             """ % (number_coppies, name)
 
-            delete_query = """
-            DELETE FROM cards WHERE name = "Sol Ring"
-            """
-
-            
             with connection.cursor() as cursor:
                 cursor.execute(select_cards_query)
                 result = cursor.fetchall()
@@ -67,67 +63,8 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
         print(e)
 
 
-def selectAll(name, color_identity, type_line, rarity, number_coppies):
-    try:
-        with connect(
-            host="localhost",
-            user="goofe222",
-            password="d@t@b@s3",
-            database="magic_cards"
-        ) as connection:
-        
-            data = (name, type_line, rarity, 12)
-            insert_magic_cards_query = """
-            INSERT INTO cards(name, color_identity, type_line, rarity, number_coppies)
-            VALUES(%s, "Green", %s, %s, %s)
-        """
-            
-            insert_magic_cardz = """"
-            INSERT INTO cardz (name, rarity)
-            VALUES (%s, %s)
-            """
 
-            show_table_query = "DESCRIBE cards"
-            select_cards_query = "SELECT * FROM cards"
-            create_table_cardz_query = """
-            CREATE TABLE cardz(
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100),
-                color_identity VARCHAR(100),
-                type_line VARCHAR(100),
-                rarity VARCHAR(100),
-                number_coppies INT
-            )
-            """
-
-            card_update = name
-            update_number_coppies_query = """
-            UPDATE
-                cards
-            SET
-                number_coppies = number_coppies + 1
-            WHERE
-                name = %s
-            """ 
-
-            delete_query = """
-            truncate table cards
-            """
-
-            
-            with connection.cursor() as cursor:
-                cursor.execute(select_cards_query)
-                result = cursor.fetchall()
-                
-                cursor.execute(delete_query)
-                connection.commit()
-                result = cursor.fetchall()
-                connection.commit()
-    except Error as e:
-        print(e)
-
-
-
+#Takes user input and either updates existing rows or creates new ones
 def singleCard():
     url = "https://api.scryfall.com/cards/"
     card_id = input("Please enter the cards id:")
@@ -140,48 +77,14 @@ def singleCard():
     card_type_line = json_data["type_line"]
     card_color_identity = json_data["color_identity"]
 
-    color_identity = ""
-    for x in card_color_identity:
-        if x == "G":
-            color_identity += "Green"
-        elif x == "B":
-            color_identity += "Black"
-        elif x == "U":
-            color_identity += "Blue"
-        elif x == "W":
-            color_identity += "White"
-        elif x == "R":
-            color_identity += "Red"
-        else:
-            color_identity += "Colorless"
+    color_identity = colorIdentity(card_color_identity)
     number_coppies = 1
     insert_into_table(card_name, color_identity, card_type_line, card_rarity, number_coppies)
 
 
 
 
-def multiCard():
-
-   f = open('cards.txt', "r")
-   z = f.readlines()
-   card_id = ""
-   card_expansion = ""
-
-   for x in range(0, len(z)-1):
-       
-       if "(" in z[x]:
-           index1 = z[x].find("(")+1
-           index2 = z[x].find(")")-1
-           number_coppies = z[x][index1:index2]
-           split = z[x].split("/")
-           card_id = split[0]
-           card_expansion = z[x][4:7]
-       else:
-           split = z[x].split("/")
-           card_id = split[0]
-           card_expansion = split[1][0:3]
-       url = "https://api.scryfall.com/cards/"
-
+#Takes inputs from a text document and either updates existing row or creates new ones
 def multiCard():
    f = open('cards.txt', "r")
    z = f.readlines()
@@ -215,29 +118,34 @@ def multiCard():
        card_type_line = json_data["type_line"]
        card_color_identity = json_data["color_identity"]
        color_identity = ""
-
-       for x in card_color_identity:
-
-           if x == "G":
-                color_identity += "Green"
-           elif x == "B":
-                color_identity += "Black"
-           elif x == "U":
-                color_identity += "Blue"
-           elif x == "W":
-                color_identity += "White"
-           elif x == "R":
-                color_identity += "Red"
-           else:
-                color_identity += "Colorless"
+       color_identity = colorIdentity(card_color_identity)
             
        insert_into_table(card_name, color_identity, card_type_line, card_rarity, number_coppies)
 
 
+def colorIdentity(colors):
+    color_identity = ""
+    for x in colors:
+        
+        if x == "G":
+                color_identity += "Green"
+        elif x == "B":
+            color_identity += "Black"
+        elif x == "U":
+            color_identity += "Blue"
+        elif x == "W":
+            color_identity += "White"
+        elif x == "R":
+            color_identity += "Red"
+        else:
+            color_identity += "Colorless"
 
+    return color_identity
+
+#Main part of the program
+print("Welcome to the magic card read er program please select an option")
 loop = True
 while loop == True:
-    print("Welcome to the magic card read er program please select an option")
     print("0)exit program")
     print("1)Enter in single card")
     print("2)Add cards in bulk from file")
@@ -250,7 +158,7 @@ while loop == True:
         print("Please make sure that the file is populated with the correct cards that you would like to have added to the data base")
         multiCard()
     else:
-        print("Sorry that was not a valid option")
+        print("Sorry that is not a valid option")
 
 
 
