@@ -5,9 +5,17 @@ import json
 #Need to edit the table to include the card_id, expansion, and card_price of a single unit
 #Add some error cathing for when we make the request to the scryfall api
 
+
+
 #Takes the given values and adds them to the table
+#todod Add functionality to remove a given listing from the table if its value reaches zero or a negative value
+#todo If the value becomes below zero print some sort of error message to the console and remove it from the table
+#todo May want to make the argument a card object would simplify everything and make it more readable
+#todo Would like to clean up this code and try to fit as much as I can into other methods to thus try and clean up this code
 def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
     try:
+
+        #? Would it be possible to take this code here and put it into its own method
         with connect(
             host="localhost",
             user="goofe222",
@@ -21,7 +29,8 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
         """
 
 
-            
+            #!Why does this even work here
+            #!Need to test to make sure if this works
             select_cards_query = "SELECT * FROM cards"
 
             card_update = (int(number_coppies), name)
@@ -34,6 +43,8 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
                 name = "%s"
             """ % (number_coppies, name)
 
+            #Need to put a query in here to delete a card from the table
+
             with connection.cursor() as cursor:
                 cursor.execute(select_cards_query)
                 result = cursor.fetchall()
@@ -44,7 +55,8 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
                 i = 0
                 doesExist = False
                 while i < len(result):
-
+                    # result[i][0] is the name and the method is just checking to see if they match
+                    #todo Need to add logic to check if the number of copies will be less than or equal to zero if so then delete entry from the table 
                     if result[i][0].replace(" ", "") == name.replace(" ", ""):
                         cursor.execute(update_number_coppies_query)
                         connection.commit()
@@ -61,6 +73,8 @@ def insert_into_table(name, color_identity, type_line, rarity, number_coppies):
                 connection.commit()
     except Error as e:
         print(e)
+
+
 
 
 
@@ -142,23 +156,7 @@ def colorIdentity(colors):
 
     return color_identity
 
-#Main part of the program
-print("Welcome to the magic card read er program please select an option")
-loop = True
-while loop == True:
-    print("0)exit program")
-    print("1)Enter in single card")
-    print("2)Add cards in bulk from file")
-    userInput = input()
-    if userInput == "0":
-        quit()
-    elif userInput == "1":
-        singleCard()
-    elif userInput == "2":
-        print("Please make sure that the file is populated with the correct cards that you would like to have added to the data base")
-        multiCard()
-    else:
-        print("Sorry that is not a valid option")
+
 
 
 

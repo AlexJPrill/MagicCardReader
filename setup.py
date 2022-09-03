@@ -1,4 +1,10 @@
 from mysqql.connector import connect, Error
+
+#This file sets up the MySQL database and the table that lies within the database
+
+#todo put this into a defenition so that if needed we can call this from any other class when needed
+#? Also would like to take a shower after I am done with work today so I need to let them know about that probably
+#@ After I am done with them I will go back to my dorm and play some deep rock which I am really looking forward to now
 try:
     with connect(
         host="localhost",
@@ -25,9 +31,10 @@ try:
         """
         with connection.cursor() as cursor:
             cursor.execute(creatre_database_query)
-            print("Setting up the database of magic_cards")
+            connection.commit()
+            print("Setting up the database of magic_cards.")
             cursor.execute(create_table_query)
-            print("Setting up the table cards")
+            print("Setting up the table cards.")
             connection.commit()
 
 
