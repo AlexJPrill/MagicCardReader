@@ -4,7 +4,7 @@ import json
 
 #! Also need to adapt the code from MagicCardReader into the main class
 class Card:
-    def _init_(name, id, expansion, type_line, color_identity, rarity, price):
+    def _init_(self, name, id, expansion, type_line, color_identity, rarity, price):
         self.name = name
         self.type_line = type_line
         self.color_identity = color_identity
@@ -15,7 +15,7 @@ class Card:
         
 
     
-    def setName(name):
+    def setName(self, name):
         self.name = name
     def setTypeLine(type_line):
         self.type_line = type_line
@@ -30,19 +30,19 @@ class Card:
     def setExpansion(expansion):
         self.expansoin = expansion
 
-    def getName():
+    def getName(self):
         return name
-    def getTypeLine():
+    def getTypeLine(self):
         return type_line
-    def getRarity():
+    def getRarity(self):
         return rarity
-    def getPrice():
+    def getPrice(self):
         return price
-    def getColorIdentity():
+    def getColorIdentity(self):
         return color_identity
-    def getID():
+    def getID(self):
         return id
-    def getExpansion():
+    def getExpansion(self):
         return expansion
 
     #todo check whether this piece of code here actualy updates
