@@ -1,5 +1,5 @@
 # Magic Card Reader
-The goal of this project is to see if I can recreate  Magic the Gathering card scanner apps like Dragon Shield and ManaBox. The project itself is made in python using the Paddle OCR library for reading information from an image of a card and the mysql library for storring data about the users collection that can be moddified at a latter time. In its current state the user interacts with the program by using the command line to tell the program what they would like to do.
+The goal of this project is to see if I can recreate  Magic the Gathering card scanner apps like Dragon Shield and ManaBox and then store the data in database that becomes the entire collection. The project itself is made in python using the Paddle OCR library for reading information from an image of a card and the mysql library for storring data about the users collection that can be moddified at a latter time. 
 
 
 # Future Plans
