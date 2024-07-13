@@ -3,6 +3,7 @@ The goal of this project is to see if I can recreate  Magic the Gathering card s
 
 
 # Future Plans
+- Improve database schema
 - Create some sort of graphical user interface
 - Swap database over to duckdb to make easier for individual deployment
 - Fully implement feature so that older mtg cards can be recognized
